@@ -1,0 +1,97 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[a4paper,margin=1.7cm]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{parskip}
+
+\definecolor{accent}{HTML}{FF7DAD}
+\definecolor{text}{HTML}{242424}
+\definecolor{muted}{HTML}{666666}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=text,
+  linkcolor=text
+}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=2pt,topsep=3pt}
+\titleformat{\section}
+  {\large\bfseries\color{text}}
+  {}
+  {0pt}
+  {}
+  [\vspace{-0.5em}{\color{accent}\rule{\linewidth}{1.5pt}}]
+\titlespacing*{\section}{0pt}{1.2em}{0.5em}
+
+\newcommand{\entry}[4]{%
+  \begin{tabularx}{\linewidth}{@{}Xr@{}}
+    \textbf{#1} & \textcolor{muted}{#2} \\
+    \textit{#3} & \textcolor{muted}{#4}
+  \end{tabularx}\vspace{0.25em}
+}
+
+\begin{document}
+
+\begin{center}
+  {\Huge\bfseries Nombre Apellido}\\[0.35em]
+  {\large\color{accent}Desarrollador de Software}\\[0.6em]
+  \href{mailto:correo@ejemplo.com}{correo@ejemplo.com}
+  \quad\textcolor{accent}{\textbullet}\quad
+  +52 000 000 0000
+  \quad\textcolor{accent}{\textbullet}\quad
+  Ciudad, País\\[0.25em]
+  \href{https://github.com/usuario}{github.com/usuario}
+  \quad\textcolor{accent}{\textbullet}\quad
+  \href{https://linkedin.com/in/usuario}{linkedin.com/in/usuario}
+\end{center}
+
+\section{Perfil}
+
+Profesional de software con experiencia construyendo soluciones claras,
+confiables y fáciles de mantener. Sustituye este texto por un resumen breve
+de tu experiencia, especialidad y el valor que aportas.
+
+\section{Experiencia}
+
+\entry{Puesto más reciente}{2024--Actualidad}{Empresa}{Ciudad, País}
+\begin{itemize}
+  \item Describe un resultado concreto e incluye métricas cuando sea posible.
+  \item Explica qué construiste, con qué tecnologías y cuál fue su impacto.
+\end{itemize}
+
+\entry{Puesto anterior}{2022--2024}{Empresa anterior}{Ciudad, País}
+\begin{itemize}
+  \item Resume una responsabilidad o logro relevante para el puesto buscado.
+  \item Mantén cada punto breve, específico y orientado a resultados.
+\end{itemize}
+
+\section{Educación}
+
+\entry{Nombre del programa o carrera}{2018--2022}{Universidad o institución}{Ciudad, País}
+
+\section{Proyectos}
+
+\textbf{Nombre del proyecto} \hfill
+\href{https://github.com/usuario/proyecto}{github.com/usuario/proyecto}
+\begin{itemize}
+  \item Explica el problema resuelto, tu contribución y las tecnologías utilizadas.
+\end{itemize}
+
+\section{Habilidades}
+
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+  Lenguajes    & JavaScript, TypeScript, Python, SQL \\
+  Herramientas & Git, Docker, Node.js, Linux \\
+  Idiomas      & Español (nativo), Inglés (nivel profesional)
+\end{tabularx}
+
+\end{document}

@@ -1,0 +1,16 @@
+{
+  "name": "latex-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Menú interactivo para compilar y mantener proyectos LaTeX",
+  "type": "module",
+  "scripts": {
+    "latexbuilder": "node scripts/bootstrap.mjs"
+  },
+  "dependencies": {
+    "kleur": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
