@@ -217,10 +217,10 @@ async function installDependencies({ yes = false } = {}) {
 
 async function createMainDocument() {
   const mainPath = join(root, "main.tex");
-  const source = join(templatesRoot, "paris", "es.tex");
+  const source = join(templatesRoot, "classic", "es.tex");
   try {
     await copyFile(source, mainPath, constants.COPYFILE_EXCL);
-    console.log("\n✓ Se creó main.tex con la plantilla Paris en español.");
+    console.log("\n✓ Se creó main.tex con la plantilla Classic en español.");
   } catch (error) {
     if (error.code === "EEXIST") {
       console.log("\n• main.tex ya existe; no se modificó.");
@@ -422,7 +422,7 @@ Opciones:
   --yes, -y             Confirmar reemplazo o instalación
 
 Ejemplos:
-  npm run latexbuilder -- template --name paris --language es --yes
+  npm run latexbuilder -- template --name classic --language es --yes
   npm run latexbuilder -- add-template --source ./mi-cv.tex --name personal --language es
 
 Sin comandos se abre el menú interactivo.

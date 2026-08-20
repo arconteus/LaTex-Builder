@@ -41,7 +41,7 @@ Cada acción del menú tiene un flag para automatización:
 npm run latexbuilder -- compile
 npm run latexbuilder -- clean
 npm run latexbuilder -- templates
-npm run latexbuilder -- template --name paris --language es --yes
+npm run latexbuilder -- template --name classic --language es --yes
 npm run latexbuilder -- check
 npm run latexbuilder -- install
 npm run latexbuilder -- init
@@ -54,14 +54,14 @@ Consulta [docs/cli.md](docs/cli.md) para ver los alias y opciones disponibles.
 
 El catálogo inicial incluye:
 
-- **Paris:** diseño moderno de dos columnas inspirado en el PDF de referencia, con secciones subrayadas y etiquetas para habilidades.
-- **Towers:** diseño lineal y compacto para una lectura tradicional.
+- **Dos columnas:** diseño moderno con secciones subrayadas y etiquetas para habilidades.
+- **Tower:** diseño lineal y compacto para una lectura tradicional.
 
 Ambas están disponibles en español (`es`) e inglés (`en`). Consulta [docs/templates.md](docs/templates.md) para elegirlas o añadir un diseño propio.
 
 ## Personalizar el CV
 
-Elige una plantilla y edita `main.tex` para reemplazar el nombre, datos de contacto, perfil, experiencia, educación, proyectos y habilidades de ejemplo. La plantilla inicial es Paris en español; ningún dato personal del PDF de referencia se incluye en el proyecto.
+Elige una plantilla y edita `main.tex` para reemplazar el nombre, datos de contacto, perfil, experiencia, educación, proyectos y habilidades de ejemplo. La plantilla inicial está en español y no incluye datos personales del PDF de referencia.
 
 Al compilar, el script busca los archivos `.tex` de forma recursiva, ignorando `.git`, `node_modules`, `build` y `dist`. Usa `main.tex` cuando existe; en caso contrario, selecciona el primer archivo que contenga `\\documentclass`.
 
@@ -74,8 +74,7 @@ Una estructura mínima sería:
 │   ├── bootstrap.mjs
 │   └── latexbuilder.mjs
 ├── templates/
-│   ├── paris/
-│   └── towers/
+│   └── <nombre>/
 └── main.tex
 ```
 

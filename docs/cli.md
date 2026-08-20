@@ -14,7 +14,7 @@ Usa `↑` y `↓` (o `j` y `k`) para navegar, `Enter` para seleccionar y `q` o `
 npm run latexbuilder -- compile
 npm run latexbuilder -- clean
 npm run latexbuilder -- templates
-npm run latexbuilder -- template --name paris --language es --yes
+npm run latexbuilder -- template --name classic --language es --yes
 npm run latexbuilder -- add-template --source ./mi-cv.tex --name personal --language es
 npm run latexbuilder -- check
 npm run latexbuilder -- install

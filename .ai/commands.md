@@ -7,7 +7,7 @@ npm run latexbuilder                  # Abrir el menú interactivo
 npm run latexbuilder -- compile       # Compilar el CV
 npm run latexbuilder -- clean         # Limpiar y compilar el CV
 npm run latexbuilder -- templates     # Listar diseños e idiomas
-npm run latexbuilder -- template --name paris --language es --yes # Aplicar diseño
+npm run latexbuilder -- template --name classic --language es --yes # Aplicar diseño
 npm run latexbuilder -- check         # Verificar formato de archivos .tex
 npm run latexbuilder -- install       # Instalar dependencias de LaTeX
 npm run latexbuilder -- install --yes # Instalar sin confirmación

@@ -33,4 +33,4 @@
 - **Estado:** completado
 - **Tema:** experiencia de creación del CV
 - **Fuente:** solicitud del usuario y referencia visual proporcionada
-- **Detalles:** se añadieron Paris y Towers en español e inglés, selección navegable, descubrimiento dinámico, registro seguro de archivos `.tex` propios y comandos automatizables. Paris conserva la jerarquía visual del PDF sin copiar sus datos personales.
+- **Detalles:** se añadieron Classic y Tower en español e inglés, selección navegable, descubrimiento dinámico, registro seguro de archivos `.tex` propios y comandos automatizables. Classic conserva la jerarquía visual de dos columnas sin copiar datos personales de la referencia.

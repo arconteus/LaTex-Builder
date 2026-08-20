@@ -5,8 +5,8 @@ automáticamente `es.tex` y `en.tex` dentro de cada directorio.
 
 ## Plantillas incluidas
 
-- `paris`: diseño de dos columnas inspirado visualmente en el CV de referencia.
-- `towers`: alternativa lineal, compacta y de una columna.
+- `classic`: diseño moderno de dos columnas con secciones subrayadas.
+- `tower`: alternativa lineal, compacta y de una columna.
 
 Ambas contienen únicamente datos ficticios y están disponibles en español e inglés.
 
@@ -16,7 +16,7 @@ Desde el menú, selecciona **Elegir plantilla**, el diseño y el idioma. Tambié
 puedes usar:
 
 ```sh
-npm run latexbuilder -- template --name paris --language es --yes
+npm run latexbuilder -- template --name classic --language es --yes
 ```
 
 La operación copia la plantilla a `main.tex`. Sin `--yes`, pide confirmación
