@@ -27,3 +27,10 @@
 - **Tema:** instrucciones para agentes
 - **Fuente:** usuario
 - **Decisión:** basar `AGENTS.md` y la organización de `.ai/` en el patrón de `shard-archive`, adaptándolo a LaTeX Builder.
+
+## 2026-08-19 — Licencia del proyecto
+
+- **Estado:** vigente
+- **Tema:** licencia
+- **Fuente:** usuario
+- **Decisión:** distribuir LaTeX Builder bajo la licencia MIT con Arconteus como titular del copyright.

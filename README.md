@@ -68,3 +68,7 @@ El bootstrap se encarga de las dependencias npm del propio menú. La distribuci�
 ## Documentación y contexto para agentes
 
 La documentación técnica está en [docs/](docs/README.md). Las reglas de colaboración se encuentran en [AGENTS.md](AGENTS.md), los requisitos compartidos en [context/](context/README.md) y el historial estructurado en [.ai/memory/](.ai/memory/README.md).
+
+## Licencia
+
+Este proyecto se distribuye bajo la [licencia MIT](LICENSE). Copyright © 2026 Arconteus.

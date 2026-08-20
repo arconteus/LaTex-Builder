@@ -20,3 +20,10 @@
 - **Tema:** flujo para agentes
 - **Fuente:** `arconteus/shard-archive/AGENTS.md` y solicitud del usuario
 - **Detalles:** se adoptó su estructura de autoridad del repositorio, reglas de ejecución, comandos canónicos, memoria temporal basada en plantilla, semántica de validación y seguridad Git; se conservaron la memoria estructurada y las preguntas obligatorias solicitadas para este proyecto.
+
+## 2026-08-19 — Licencia MIT
+
+- **Estado:** completado
+- **Tema:** distribución abierta
+- **Fuente:** solicitud del usuario
+- **Detalles:** se añadió la licencia MIT para Arconteus y se declaró en los metadatos npm y el README.

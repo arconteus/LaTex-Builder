@@ -2,6 +2,7 @@
   "name": "latex-builder",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Menú interactivo para compilar y mantener proyectos LaTeX",
   "type": "module",
   "scripts": {
