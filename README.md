@@ -31,6 +31,21 @@ El menú ofrece:
 
 En terminales que no soporten interacción (por ejemplo, una tubería o ciertos entornos de CI), el programa cambia automáticamente a un menú numerado compatible.
 
+## Comandos directos
+
+Cada acción del menú tiene un flag para automatización:
+
+```sh
+npm run latexbuilder -- compile
+npm run latexbuilder -- clean
+npm run latexbuilder -- check
+npm run latexbuilder -- install
+npm run latexbuilder -- init
+npm run latexbuilder -- help
+```
+
+Consulta [docs/cli.md](docs/cli.md) para ver los alias y opciones disponibles.
+
 ## Personalizar el CV
 
 Edita `main.tex` y reemplaza el nombre, datos de contacto, perfil, experiencia, educación, proyectos y habilidades de ejemplo. La plantilla utiliza el mismo color principal `#FF7DAD` que el CLI.
@@ -49,3 +64,7 @@ Una estructura mínima sería:
 ```
 
 El bootstrap se encarga de las dependencias npm del propio menú. La distribución LaTeX es independiente y puede instalarse desde la opción correspondiente; al terminar, esa opción también prepara el primer `main.tex` del proyecto.
+
+## Documentación y contexto para agentes
+
+La documentación técnica está en [docs/](docs/README.md). Las reglas de colaboración se encuentran en [AGENTS.md](AGENTS.md), los requisitos compartidos en [context/](context/README.md) y el historial estructurado en [.ai/memory/](.ai/memory/README.md).

@@ -172,7 +172,7 @@ function latexIsInstalled() {
   return false;
 }
 
-async function installDependencies() {
+async function installDependencies({ yes = false } = {}) {
   if (latexIsInstalled()) {
     console.log("\n✓ La distribución LaTeX ya está instalada.");
     await createMainDocument();
@@ -184,7 +184,7 @@ async function installDependencies() {
   if (!selected) throw new Error("No se encontró un gestor compatible. Instala TeX Live, MacTeX o MiKTeX manualmente.");
   const [command, args] = selected;
   console.log(`\nSe ejecutará: ${command} ${args.join(" ")}\n`);
-  const answer = (await ask("¿Continuar? [s/N] ")).trim().toLowerCase();
+  const answer = yes ? "s" : (await ask("¿Continuar? [s/N] ")).trim().toLowerCase();
   if (!["s", "si", "sí", "y", "yes"].includes(answer)) {
     console.log("Instalación cancelada.");
     return;
@@ -280,7 +280,7 @@ const options = [
   { label: "Limpiar y compilar", detail: "Borra artefactos y genera el PDF", action: () => compile({ clean: true }) },
   { label: "Compilar proyecto", detail: "Genera el PDF con latexmk", action: () => compile() },
   { label: "Verificar formato", detail: "Revisa todos los archivos .tex", action: checkFormat },
-  { label: "Instalar dependencias", detail: "Instala una distribución LaTeX", action: installDependencies },
+  { label: "Instalar dependencias", detail: "Instala una distribución LaTeX", action: () => installDependencies() },
   { label: "Salir", detail: "Cerrar LaTeX Builder", exit: true }
 ];
 
@@ -350,4 +350,58 @@ async function menu() {
   }
 }
 
-await menu();
+function printHelp() {
+  console.log(`
+LaTeX Builder
+
+Uso:
+  npm run latexbuilder
+  npm run latexbuilder -- <comando> [opciones]
+
+Comandos:
+  compile  --compile, -c       Compilar el proyecto
+  clean    --clean, -C         Limpiar artefactos y compilar
+  check    --check-format, -f  Verificar el formato de los archivos .tex
+  install  --install, -i       Instalar las dependencias de LaTeX
+  init     --init              Crear main.tex si no existe
+  help     --help, -h          Mostrar esta ayuda
+
+Opciones:
+  --yes, -y           Confirmar automáticamente una instalación
+
+Sin comandos se abre el menú interactivo.
+`);
+}
+
+async function runFromArguments(args) {
+  if (args.length === 0) return menu();
+
+  const flags = new Set(args);
+  if (flags.has("help") || flags.has("--help") || flags.has("-h")) return printHelp();
+
+  const commands = [
+    { flags: ["compile", "--compile", "-c"], action: () => compile() },
+    { flags: ["clean", "--clean", "-C"], action: () => compile({ clean: true }) },
+    { flags: ["check", "--check-format", "-f"], action: checkFormat },
+    { flags: ["install", "--install", "-i"], action: () => installDependencies({ yes: flags.has("--yes") || flags.has("-y") }) },
+    { flags: ["init", "--init"], action: createMainDocument }
+  ];
+  const selected = commands.filter((command) => command.flags.some((flag) => flags.has(flag)));
+  const known = new Set(["--yes", "-y", ...commands.flatMap((command) => command.flags)]);
+  const unknown = args.filter((argument) => !known.has(argument));
+
+  if (unknown.length > 0) {
+    throw new Error(`Argumentos desconocidos: ${unknown.join(", ")}. Usa --help para consultar los comandos.`);
+  }
+  if (selected.length !== 1) {
+    throw new Error("Indica exactamente un comando. Usa --help para consultar las opciones.");
+  }
+  await selected[0].action();
+}
+
+try {
+  await runFromArguments(process.argv.slice(2));
+} catch (error) {
+  console.error(kleur.red(`\n✗ ${error.message}`));
+  process.exitCode = 1;
+}
