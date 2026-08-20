@@ -8,6 +8,6 @@
 
 ## Idioma del documento
 
-- **Estado:** pendiente de confirmación
+- **Estado:** confirmado
 - **Actualizado:** 2026-08-19
-- **Preferencia:** no registrada; el agente debe preguntarla antes de modificar contenido textual de LaTeX.
+- **Preferencia:** mantener plantillas de CV disponibles tanto en español como en inglés.

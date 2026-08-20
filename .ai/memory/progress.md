@@ -27,3 +27,10 @@
 - **Tema:** distribución abierta
 - **Fuente:** solicitud del usuario
 - **Detalles:** se añadió la licencia MIT para Arconteus y se declaró en los metadatos npm y el README.
+
+## 2026-08-19 — Catálogo bilingüe de plantillas
+
+- **Estado:** completado
+- **Tema:** experiencia de creación del CV
+- **Fuente:** solicitud del usuario y referencia visual proporcionada
+- **Detalles:** se añadieron Paris y Towers en español e inglés, selección navegable, descubrimiento dinámico, registro seguro de archivos `.tex` propios y comandos automatizables. Paris conserva la jerarquía visual del PDF sin copiar sus datos personales.

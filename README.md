@@ -26,8 +26,10 @@ El menú ofrece:
 
 1. **Limpiar y compilar:** elimina los artefactos generados y crea de nuevo el PDF.
 2. **Compilar:** usa `latexmk` cuando está disponible y tiene un motor Perl. Si MiKTeX no incluye Perl, cambia automáticamente a dos pasadas de `pdflatex` para resolver las referencias habituales, sin exigir una instalación adicional.
-3. **Verificar formato:** comprueba todos los archivos `.tex` con `latexindent --check` sin modificarlos.
-4. **Instalar dependencias:** detecta el sistema operativo, comprueba primero si LaTeX ya está disponible y propone el comando de instalación cuando hace falta. Si se eliminó `main.tex`, recupera una plantilla inicial sin sobrescribir archivos existentes.
+3. **Elegir plantilla:** permite seleccionar un diseño y su idioma con las flechas.
+4. **Añadir plantilla:** registra un archivo `.tex` propio dentro del catálogo.
+5. **Verificar formato:** comprueba todos los archivos `.tex` con `latexindent --check`; si falta Perl, usa una validación interna de espacios y tabuladores. No modifica los archivos.
+6. **Instalar dependencias:** detecta el sistema operativo, comprueba primero si LaTeX ya está disponible y propone el comando de instalación cuando hace falta. Si se eliminó `main.tex`, recupera una plantilla inicial sin sobrescribir archivos existentes.
 
 En terminales que no soporten interacción (por ejemplo, una tubería o ciertos entornos de CI), el programa cambia automáticamente a un menú numerado compatible.
 
@@ -38,6 +40,8 @@ Cada acción del menú tiene un flag para automatización:
 ```sh
 npm run latexbuilder -- compile
 npm run latexbuilder -- clean
+npm run latexbuilder -- templates
+npm run latexbuilder -- template --name paris --language es --yes
 npm run latexbuilder -- check
 npm run latexbuilder -- install
 npm run latexbuilder -- init
@@ -46,9 +50,18 @@ npm run latexbuilder -- help
 
 Consulta [docs/cli.md](docs/cli.md) para ver los alias y opciones disponibles.
 
+## Plantillas
+
+El catálogo inicial incluye:
+
+- **Paris:** diseño moderno de dos columnas inspirado en el PDF de referencia, con secciones subrayadas y etiquetas para habilidades.
+- **Towers:** diseño lineal y compacto para una lectura tradicional.
+
+Ambas están disponibles en español (`es`) e inglés (`en`). Consulta [docs/templates.md](docs/templates.md) para elegirlas o añadir un diseño propio.
+
 ## Personalizar el CV
 
-Edita `main.tex` y reemplaza el nombre, datos de contacto, perfil, experiencia, educación, proyectos y habilidades de ejemplo. La plantilla utiliza el mismo color principal `#FF7DAD` que el CLI.
+Elige una plantilla y edita `main.tex` para reemplazar el nombre, datos de contacto, perfil, experiencia, educación, proyectos y habilidades de ejemplo. La plantilla inicial es Paris en español; ningún dato personal del PDF de referencia se incluye en el proyecto.
 
 Al compilar, el script busca los archivos `.tex` de forma recursiva, ignorando `.git`, `node_modules`, `build` y `dist`. Usa `main.tex` cuando existe; en caso contrario, selecciona el primer archivo que contenga `\\documentclass`.
 
@@ -60,6 +73,9 @@ Una estructura mínima sería:
 ├── scripts/
 │   ├── bootstrap.mjs
 │   └── latexbuilder.mjs
+├── templates/
+│   ├── paris/
+│   └── towers/
 └── main.tex
 ```
 

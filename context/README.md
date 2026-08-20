@@ -13,3 +13,4 @@ LaTeX Builder ofrece un punto de entrada npm interactivo y multiplataforma para 
 - La preparación de dependencias npm funciona como bootstrap.
 - La compilación usa `latexmk` cuando puede ejecutarse y recurre a dos pasadas de `pdflatex` si falta Perl.
 - Los artefactos de LaTeX y los PDF no se versionan.
+- El catálogo ofrece las plantillas `paris` y `towers` en español e inglés y descubre nuevas variantes bajo `templates/<nombre>/<idioma>.tex`.

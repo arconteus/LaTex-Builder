@@ -34,3 +34,17 @@
 - **Tema:** licencia
 - **Fuente:** usuario
 - **Decisión:** distribuir LaTeX Builder bajo la licencia MIT con Arconteus como titular del copyright.
+
+## 2026-08-19 — Nombre de plantilla Towers
+
+- **Estado:** vigente
+- **Tema:** catálogo de plantillas
+- **Fuente:** usuario
+- **Decisión:** usar `towers` como nombre de la plantilla alternativa en lugar de `classic`.
+
+## 2026-08-19 — Plantillas bilingües extensibles
+
+- **Estado:** vigente
+- **Tema:** generación de CV
+- **Fuente:** usuario
+- **Decisión:** ofrecer diseños en español e inglés, permitir elegirlos desde el CLI y descubrir plantillas nuevas añadidas por el usuario.

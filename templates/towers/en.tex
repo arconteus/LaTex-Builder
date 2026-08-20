@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[a4paper,margin=1.7cm]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{parskip}
+
+\definecolor{accent}{HTML}{FF7DAD}
+\definecolor{text}{HTML}{242424}
+\definecolor{muted}{HTML}{666666}
+\hypersetup{colorlinks=true,urlcolor=text,linkcolor=text}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=2pt,topsep=3pt}
+\titleformat{\section}{\large\bfseries\color{text}}{}{0pt}{}
+  [\vspace{-0.5em}{\color{accent}\rule{\linewidth}{1.5pt}}]
+\titlespacing*{\section}{0pt}{1.2em}{0.5em}
+
+\newcommand{\entry}[4]{%
+  \begin{tabularx}{\linewidth}{@{}Xr@{}}
+    \textbf{#1} & \textcolor{muted}{#2} \\
+    \textit{#3} & \textcolor{muted}{#4}
+  \end{tabularx}\vspace{0.25em}
+}
+
+\begin{document}
+\begin{center}
+  {\Huge\bfseries Firstname Lastname}\\[0.35em]
+  {\large\color{accent}Professional title}\\[0.6em]
+  \href{mailto:email@example.com}{email@example.com}
+  \quad\textcolor{accent}{\textbullet}\quad +00 000 000 0000
+  \quad\textcolor{accent}{\textbullet}\quad City, Country\\[0.25em]
+  \href{https://github.com/username}{GitHub}
+  \quad\textcolor{accent}{\textbullet}\quad
+  \href{https://linkedin.com/in/username}{LinkedIn}
+\end{center}
+
+\section{Summary}
+Summarize your experience, specialty, and professional value.
+
+\section{Experience}
+\entry{Most recent role}{2024--Present}{Company}{City, Country}
+\begin{itemize}
+  \item Describe a concrete result and include metrics whenever possible.
+  \item Explain what you built, the technologies used, and its impact.
+\end{itemize}
+
+\section{Education}
+\entry{Degree or program}{2018--2022}{University}{City, Country}
+
+\section{Projects}
+\textbf{Project name} \hfill \href{https://github.com/username}{GitHub}
+\begin{itemize}
+  \item Explain the problem, your contribution, and the technologies used.
+\end{itemize}
+
+\section{Skills}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+  Languages & JavaScript, TypeScript, Python, SQL \\
+  Tools     & Git, Docker, Node.js, Linux \\
+  Spoken    & English (native), Spanish (B2)
+\end{tabularx}
+\end{document}

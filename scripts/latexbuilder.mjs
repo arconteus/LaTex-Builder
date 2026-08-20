@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
-import { readdir, readFile, unlink, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { copyFile, mkdir, readdir, readFile, unlink } from "node:fs/promises";
+import { constants, existsSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { emitKeypressEvents } from "node:readline";
 import { stdin as input, stdout as output } from "node:process";
-import { basename, dirname, join } from "node:path";
+import { basename, dirname, extname, join, resolve } from "node:path";
 import kleur from "kleur";
 
 const root = process.cwd();
+const templatesRoot = join(root, "templates");
 kleur.enabled = output.isTTY && !process.env.NO_COLOR;
 const pink = (text) => kleur.enabled ? `\x1b[38;2;255;125;173m${text}\x1b[0m` : text;
 const pinkSelection = (text) => kleur.enabled ? `\x1b[30;48;2;255;125;173m${text}\x1b[0m` : text;
@@ -140,10 +141,23 @@ async function cleanArtifacts(document) {
 }
 
 async function checkFormat() {
-  const latexindent = requireCommand("latexindent", "Usa la opción de instalar dependencias.");
   const files = await texFiles();
   if (files.length === 0) throw new Error("No se encontraron archivos .tex.");
-  await run(latexindent, ["--check", ...files]);
+  const latexindent = commandPath("latexindent");
+  if (latexindent && hasCommand("perl")) {
+    await run(latexindent, ["--check", ...files]);
+  } else {
+    const issues = [];
+    for (const file of files) {
+      const lines = (await readFile(file, "utf8")).split(/\r?\n/);
+      lines.forEach((line, index) => {
+        if (/\s+$/.test(line)) issues.push(`${file}:${index + 1} contiene espacios al final`);
+        if (line.includes("\t")) issues.push(`${file}:${index + 1} contiene tabuladores`);
+      });
+    }
+    if (issues.length > 0) throw new Error(`Se encontraron problemas de formato:\n${issues.join("\n")}`);
+    console.log("\n• Perl no está disponible; se aplicó la verificación interna de espacios y tabuladores.");
+  }
   console.log("\n✓ Todos los archivos .tex tienen el formato esperado.");
 }
 
@@ -202,71 +216,11 @@ async function installDependencies({ yes = false } = {}) {
 }
 
 async function createMainDocument() {
-  const mainPath = `${root}/main.tex`;
-  const template = String.raw`\documentclass[11pt,a4paper]{article}
-
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}
-\usepackage[a4paper,margin=1.7cm]{geometry}
-\usepackage{enumitem}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{titlesec}
-\usepackage{tabularx}
-\usepackage{parskip}
-
-\definecolor{accent}{HTML}{FF7DAD}
-\definecolor{text}{HTML}{242424}
-\definecolor{muted}{HTML}{666666}
-
-\hypersetup{colorlinks=true,urlcolor=text,linkcolor=text}
-\pagestyle{empty}
-\setlength{\parindent}{0pt}
-\setlist[itemize]{leftmargin=1.2em,itemsep=2pt,topsep=3pt}
-\titleformat{\section}{\large\bfseries\color{text}}{}{0pt}{}
-  [\vspace{-0.5em}{\color{accent}\rule{\linewidth}{1.5pt}}]
-\titlespacing*{\section}{0pt}{1.2em}{0.5em}
-
-\begin{document}
-
-\begin{center}
-  {\Huge\bfseries Nombre Apellido}\\[0.35em]
-  {\large\color{accent}Desarrollador de Software}\\[0.6em]
-  \href{mailto:correo@ejemplo.com}{correo@ejemplo.com}
-  \quad\textcolor{accent}{\textbullet}\quad +52 000 000 0000
-  \quad\textcolor{accent}{\textbullet}\quad Ciudad, País
-\end{center}
-
-\section{Perfil}
-
-Sustituye este texto por un resumen breve de tu experiencia, especialidad y
-el valor que aportas.
-
-\section{Experiencia}
-
-\textbf{Puesto más reciente} \hfill \textcolor{muted}{2024--Actualidad}\\
-\textit{Empresa, Ciudad}
-\begin{itemize}
-  \item Describe un resultado concreto e incluye métricas cuando sea posible.
-  \item Explica qué construiste y cuál fue su impacto.
-\end{itemize}
-
-\section{Educación}
-
-\textbf{Nombre del programa o carrera} \hfill \textcolor{muted}{2018--2022}\\
-Universidad o institución
-
-\section{Habilidades}
-
-JavaScript, TypeScript, Python, SQL, Git, Docker y Node.js.
-
-\end{document}
-`;
-
+  const mainPath = join(root, "main.tex");
+  const source = join(templatesRoot, "paris", "es.tex");
   try {
-    await writeFile(mainPath, template, { encoding: "utf8", flag: "wx" });
-    console.log("\n✓ Se creó main.tex con una plantilla inicial.");
+    await copyFile(source, mainPath, constants.COPYFILE_EXCL);
+    console.log("\n✓ Se creó main.tex con la plantilla Paris en español.");
   } catch (error) {
     if (error.code === "EEXIST") {
       console.log("\n• main.tex ya existe; no se modificó.");
@@ -276,22 +230,79 @@ JavaScript, TypeScript, Python, SQL, Git, Docker y Node.js.
   }
 }
 
+async function availableTemplates() {
+  const entries = await readdir(templatesRoot, { withFileTypes: true });
+  const templates = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const files = await readdir(join(templatesRoot, entry.name));
+    const languages = files
+      .filter((file) => ["es.tex", "en.tex"].includes(file))
+      .map((file) => basename(file, ".tex"));
+    if (languages.length > 0) templates.push({ name: entry.name, languages });
+  }
+  return templates.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function languageLabel(language) {
+  return language === "es" ? "Español" : "English";
+}
+
+async function useTemplate(name, language, { yes = false } = {}) {
+  if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) throw new Error("El nombre de plantilla no es válido.");
+  if (!["es", "en"].includes(language)) throw new Error("El idioma debe ser 'es' o 'en'.");
+  const source = join(templatesRoot, name, `${language}.tex`);
+  if (!existsSync(source)) throw new Error(`No existe la plantilla '${name}' en '${language}'.`);
+
+  const destination = join(root, "main.tex");
+  if (existsSync(destination) && !yes) {
+    if (!input.isTTY) throw new Error("main.tex ya existe. Repite el comando con --yes para reemplazarlo.");
+    const answer = (await ask("main.tex será reemplazado. ¿Continuar? [s/N] ")).trim().toLowerCase();
+    if (!["s", "si", "sí", "y", "yes"].includes(answer)) {
+      console.log("Selección cancelada.");
+      return;
+    }
+  }
+  await copyFile(source, destination);
+  console.log(`\n✓ Plantilla '${name}' (${languageLabel(language)}) aplicada a main.tex.`);
+}
+
+async function addTemplate(sourcePath, name, language) {
+  const source = resolve(root, sourcePath);
+  if (extname(source).toLowerCase() !== ".tex" || !existsSync(source)) {
+    throw new Error("El origen debe ser un archivo .tex existente.");
+  }
+  if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) {
+    throw new Error("Usa un nombre con letras, números y guiones, por ejemplo 'mi-cv'.");
+  }
+  if (!["es", "en"].includes(language)) throw new Error("El idioma debe ser 'es' o 'en'.");
+
+  const directory = join(templatesRoot, name.toLowerCase());
+  const destination = join(directory, `${language}.tex`);
+  if (existsSync(destination)) throw new Error(`La plantilla '${name}' en '${language}' ya existe.`);
+  await mkdir(directory, { recursive: true });
+  await copyFile(source, destination, constants.COPYFILE_EXCL);
+  console.log(`\n✓ Plantilla '${name}' (${languageLabel(language)}) añadida.`);
+}
+
 const options = [
   { label: "Limpiar y compilar", detail: "Borra artefactos y genera el PDF", action: () => compile({ clean: true }) },
   { label: "Compilar proyecto", detail: "Genera el PDF con latexmk", action: () => compile() },
+  { label: "Elegir plantilla", detail: "Selecciona diseño e idioma", action: chooseTemplateInteractive },
+  { label: "Añadir plantilla", detail: "Registra un archivo .tex propio", action: addTemplateInteractive },
   { label: "Verificar formato", detail: "Revisa todos los archivos .tex", action: checkFormat },
   { label: "Instalar dependencias", detail: "Instala una distribución LaTeX", action: () => installDependencies() },
   { label: "Salir", detail: "Cerrar LaTeX Builder", exit: true }
 ];
 
-function drawMenu(selected) {
+function drawMenu(selected, choices, subtitle) {
   output.write("\x1b[2J\x1b[H");
   console.log(pink("╭──────────────────────────────────────────────╮"));
   console.log(pink("│") + "              LaTeX Builder                 " + pink("│"));
   console.log(pink("╰──────────────────────────────────────────────╯"));
-  console.log(kleur.dim("  Compila, revisa y prepara tu proyecto\n"));
+  console.log(kleur.dim(`  ${subtitle}\n`));
 
-  options.forEach((option, index) => {
+  choices.forEach((option, index) => {
     const pointer = index === selected ? "❯" : " ";
     const title = ` ${pointer} ${option.label.padEnd(26)}`;
     console.log(index === selected ? pinkSelection(title) : title);
@@ -300,19 +311,19 @@ function drawMenu(selected) {
   console.log(kleur.dim("\n  ↑/↓ mover  •  Enter seleccionar  •  q salir"));
 }
 
-async function selectOption() {
+async function selectOption(choices = options, subtitle = "Compila, revisa y prepara tu proyecto") {
   if (!input.isTTY || !output.isTTY || typeof input.setRawMode !== "function") {
     console.log("\nLaTeX Builder\n");
-    options.forEach((option, index) => console.log(`  ${index + 1}) ${option.label}`));
+    choices.forEach((option, index) => console.log(`  ${index + 1}) ${option.label}`));
     const answer = Number.parseInt(await ask("\nSelecciona una opción: "), 10);
-    return options[answer - 1] ?? null;
+    return choices[answer - 1] ?? null;
   }
 
   emitKeypressEvents(input);
   input.setRawMode(true);
   input.resume();
   let selected = 0;
-  drawMenu(selected);
+  drawMenu(selected, choices, subtitle);
 
   return new Promise((resolve) => {
     const finish = (option) => {
@@ -323,16 +334,51 @@ async function selectOption() {
       resolve(option);
     };
     const onKeypress = (_character, key) => {
-      if (key.ctrl && key.name === "c") return finish(options.at(-1));
-      if (key.name === "q" || key.name === "escape") return finish(options.at(-1));
-      if (key.name === "up" || key.name === "k") selected = (selected - 1 + options.length) % options.length;
-      else if (key.name === "down" || key.name === "j") selected = (selected + 1) % options.length;
-      else if (key.name === "return") return finish(options[selected]);
+      if (key.ctrl && key.name === "c") return finish(choices.find((choice) => choice.exit) ?? null);
+      if (key.name === "q" || key.name === "escape") return finish(choices.find((choice) => choice.exit) ?? null);
+      if (key.name === "up" || key.name === "k") selected = (selected - 1 + choices.length) % choices.length;
+      else if (key.name === "down" || key.name === "j") selected = (selected + 1) % choices.length;
+      else if (key.name === "return") return finish(choices[selected]);
       else return;
-      drawMenu(selected);
+      drawMenu(selected, choices, subtitle);
     };
     input.on("keypress", onKeypress);
   });
+}
+
+async function chooseTemplateInteractive() {
+  const templates = await availableTemplates();
+  const selectedTemplate = await selectOption(
+    templates.map((template) => ({
+      label: template.name,
+      detail: template.languages.map(languageLabel).join(" / "),
+      template
+    })),
+    "Elige un diseño"
+  );
+  if (!selectedTemplate) return;
+
+  const selectedLanguage = await selectOption(
+    selectedTemplate.template.languages.map((language) => ({
+      label: languageLabel(language),
+      detail: `${selectedTemplate.template.name}/${language}.tex`,
+      language
+    })),
+    "Elige el idioma del CV"
+  );
+  if (selectedLanguage) {
+    await useTemplate(selectedTemplate.template.name, selectedLanguage.language);
+  }
+}
+
+async function addTemplateInteractive() {
+  const source = (await ask("Ruta del archivo .tex: ")).trim();
+  const name = (await ask("Nombre de la plantilla (ej. mi-cv): ")).trim();
+  const selectedLanguage = await selectOption([
+    { label: "Español", detail: "Se guardará como es.tex", language: "es" },
+    { label: "English", detail: "It will be saved as en.tex", language: "en" }
+  ], "Idioma de la nueva plantilla");
+  if (selectedLanguage) await addTemplate(source, name, selectedLanguage.language);
 }
 
 async function menu() {
@@ -361,42 +407,69 @@ Uso:
 Comandos:
   compile  --compile, -c       Compilar el proyecto
   clean    --clean, -C         Limpiar artefactos y compilar
+  templates                    Listar plantillas disponibles
+  template                     Aplicar una plantilla a main.tex
+  add-template                 Añadir un archivo .tex al catálogo
   check    --check-format, -f  Verificar el formato de los archivos .tex
   install  --install, -i       Instalar las dependencias de LaTeX
   init     --init              Crear main.tex si no existe
   help     --help, -h          Mostrar esta ayuda
 
 Opciones:
-  --yes, -y           Confirmar automáticamente una instalación
+  --name <nombre>       Nombre de plantilla
+  --language <es|en>    Idioma de plantilla
+  --source <ruta>       Archivo .tex que se añadirá
+  --yes, -y             Confirmar reemplazo o instalación
+
+Ejemplos:
+  npm run latexbuilder -- template --name paris --language es --yes
+  npm run latexbuilder -- add-template --source ./mi-cv.tex --name personal --language es
 
 Sin comandos se abre el menú interactivo.
 `);
 }
 
+function argumentValue(args, name) {
+  const index = args.indexOf(name);
+  return index >= 0 ? args[index + 1] : undefined;
+}
+
+async function listTemplates() {
+  const templates = await availableTemplates();
+  console.log("\nPlantillas disponibles:\n");
+  templates.forEach((template) => {
+    console.log(`  ${template.name.padEnd(16)} ${template.languages.map(languageLabel).join(" / ")}`);
+  });
+}
+
 async function runFromArguments(args) {
   if (args.length === 0) return menu();
 
-  const flags = new Set(args);
-  if (flags.has("help") || flags.has("--help") || flags.has("-h")) return printHelp();
-
-  const commands = [
-    { flags: ["compile", "--compile", "-c"], action: () => compile() },
-    { flags: ["clean", "--clean", "-C"], action: () => compile({ clean: true }) },
-    { flags: ["check", "--check-format", "-f"], action: checkFormat },
-    { flags: ["install", "--install", "-i"], action: () => installDependencies({ yes: flags.has("--yes") || flags.has("-y") }) },
-    { flags: ["init", "--init"], action: createMainDocument }
-  ];
-  const selected = commands.filter((command) => command.flags.some((flag) => flags.has(flag)));
-  const known = new Set(["--yes", "-y", ...commands.flatMap((command) => command.flags)]);
-  const unknown = args.filter((argument) => !known.has(argument));
-
-  if (unknown.length > 0) {
-    throw new Error(`Argumentos desconocidos: ${unknown.join(", ")}. Usa --help para consultar los comandos.`);
+  const command = args[0];
+  const yes = args.includes("--yes") || args.includes("-y");
+  if (["help", "--help", "-h"].includes(command)) return printHelp();
+  if (["compile", "--compile", "-c"].includes(command)) return compile();
+  if (["clean", "--clean", "-C"].includes(command)) return compile({ clean: true });
+  if (["check", "--check-format", "-f"].includes(command)) return checkFormat();
+  if (["install", "--install", "-i"].includes(command)) return installDependencies({ yes });
+  if (["init", "--init"].includes(command)) return createMainDocument();
+  if (command === "templates") return listTemplates();
+  if (command === "template") {
+    const name = argumentValue(args, "--name");
+    const language = argumentValue(args, "--language");
+    if (!name || !language) throw new Error("template requiere --name y --language.");
+    return useTemplate(name, language, { yes });
   }
-  if (selected.length !== 1) {
-    throw new Error("Indica exactamente un comando. Usa --help para consultar las opciones.");
+  if (command === "add-template") {
+    const source = argumentValue(args, "--source");
+    const name = argumentValue(args, "--name");
+    const language = argumentValue(args, "--language");
+    if (!source || !name || !language) {
+      throw new Error("add-template requiere --source, --name y --language.");
+    }
+    return addTemplate(source, name, language);
   }
-  await selected[0].action();
+  throw new Error(`Comando desconocido: ${command}. Usa help para consultar los comandos.`);
 }
 
 try {
